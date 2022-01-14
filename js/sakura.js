@@ -47,17 +47,14 @@ Matrix44.loadProjection = function(m, aspect, vdeg, near, far) {
 	m[1] = 0.0;
 	m[2] = 0.0;
 	m[3] = 0.0;
-
 	m[4] = 0.0;
 	m[5] = 2.0 * near / h;
 	m[6] = 0.0;
 	m[7] = 0.0;
-
 	m[8] = 0.0;
 	m[9] = 0.0;
 	m[10] = -(far + near) / (far - near);
 	m[11] = -1.0;
-
 	m[12] = 0.0;
 	m[13] = 0.0;
 	m[14] = -2.0 * far * near / (far - near);
@@ -77,17 +74,14 @@ Matrix44.loadLookAt = function(m, vpos, vlook, vup) {
 	m[1] = topv.x;
 	m[2] = frontv.x;
 	m[3] = 0.0;
-
 	m[4] = sidev.y;
 	m[5] = topv.y;
 	m[6] = frontv.y;
 	m[7] = 0.0;
-
 	m[8] = sidev.z;
 	m[9] = topv.z;
 	m[10] = frontv.z;
 	m[11] = 0.0;
-
 	m[12] = -(vpos.x * m[0] + vpos.y * m[4] + vpos.z * m[8]);
 	m[13] = -(vpos.x * m[1] + vpos.y * m[5] + vpos.z * m[9]);
 	m[14] = -(vpos.x * m[2] + vpos.y * m[6] + vpos.z * m[10]);
@@ -112,7 +106,6 @@ var renderSpec = {
 	'halfWidth': 0,
 	'halfHeight': 0,
 	'halfArray': new Float32Array(3)
-	// and some render targets. see setViewport()
 };
 renderSpec.setSize = function(w, h) {
 	renderSpec.width = w;
@@ -121,7 +114,6 @@ renderSpec.setSize = function(w, h) {
 	renderSpec.array[0] = renderSpec.width;
 	renderSpec.array[1] = renderSpec.height;
 	renderSpec.array[2] = renderSpec.aspect;
-
 	renderSpec.halfWidth = Math.floor(w / 2);
 	renderSpec.halfHeight = Math.floor(h / 2);
 	renderSpec.halfArray[0] = renderSpec.halfWidth;
@@ -152,14 +144,11 @@ function createRenderTarget(w, h) {
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-
 	gl.bindFramebuffer(gl.FRAMEBUFFER, ret.frameBuffer);
 	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, ret.texture, 0);
-
 	gl.bindRenderbuffer(gl.RENDERBUFFER, ret.renderBuffer);
 	gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, w, h);
 	gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, ret.renderBuffer);
-
 	gl.bindTexture(gl.TEXTURE_2D, null);
 	gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -193,11 +182,10 @@ function createShader(vtxsrc, frgsrc, uniformlist, attrlist) {
 	var prog = gl.createProgram();
 	gl.attachShader(prog, vsh);
 	gl.attachShader(prog, fsh);
-
 	gl.deleteShader(vsh);
 	gl.deleteShader(fsh);
-
 	gl.linkProgram(prog);
+
 	if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
 		var errlog = gl.getProgramInfoLog(prog);
 		console.error(errlog);
@@ -322,17 +310,14 @@ function createPointFlowers() {
 	useShader(pointFlower.program);
 	pointFlower.offset = new Float32Array([0.0, 0.0, 0.0]);
 	pointFlower.fader = Vector3.create(0.0, 10.0, 0.0);
-
-	// paramerters: velocity[3], rotate[3]
 	pointFlower.numFlowers = 1600;
 	pointFlower.particles = new Array(pointFlower.numFlowers);
-	// vertex attributes {position[3], euler_xyz[3], size[1]}
 	pointFlower.dataArray = new Float32Array(pointFlower.numFlowers * (3 + 3 + 2));
 	pointFlower.positionArrayOffset = 0;
 	pointFlower.eulerArrayOffset = pointFlower.numFlowers * 3;
 	pointFlower.miscArrayOffset = pointFlower.numFlowers * 6;
-
 	pointFlower.buffer = gl.createBuffer();
+
 	gl.bindBuffer(gl.ARRAY_BUFFER, pointFlower.buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, pointFlower.dataArray, gl.DYNAMIC_DRAW);
 	gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -348,7 +333,6 @@ function initPointFlowers() {
 	//area
 	pointFlower.area = Vector3.create(20.0, 20.0, 20.0);
 	pointFlower.area.x = pointFlower.area.y * renderSpec.aspect;
-
 	pointFlower.fader.x = 10.0; //env fade start
 	pointFlower.fader.y = pointFlower.area.z; //env fade half
 	pointFlower.fader.z = 0.1; //near fade start
@@ -429,7 +413,6 @@ function renderPointFlowers() {
 		repeatEuler(prtcl, 2);
 
 		prtcl.alpha = 1.0; //(pointFlower.area.z - prtcl.position[2]) * 0.5;
-
 		prtcl.zkey = (camera.matrix[2] * prtcl.position[0] +
 			camera.matrix[6] * prtcl.position[1] +
 			camera.matrix[10] * prtcl.position[2] +
@@ -462,7 +445,6 @@ function renderPointFlowers() {
 
 	//draw
 	gl.enable(gl.BLEND);
-	//gl.disable(gl.DEPTH_TEST);
 	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
 	var prog = pointFlower.program;
@@ -473,10 +455,8 @@ function renderPointFlowers() {
 	gl.uniform3fv(prog.uniforms.uResolution, renderSpec.array);
 	gl.uniform3fv(prog.uniforms.uDOF, Vector3.arrayForm(camera.dof));
 	gl.uniform3fv(prog.uniforms.uFade, Vector3.arrayForm(pointFlower.fader));
-
 	gl.bindBuffer(gl.ARRAY_BUFFER, pointFlower.buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, pointFlower.dataArray, gl.DYNAMIC_DRAW);
-
 	gl.vertexAttribPointer(prog.attributes.aPosition, 3, gl.FLOAT, false, 0, pointFlower.positionArrayOffset *
 		Float32Array.BYTES_PER_ELEMENT);
 	gl.vertexAttribPointer(prog.attributes.aEuler, 3, gl.FLOAT, false, 0, pointFlower.eulerArrayOffset * Float32Array.BYTES_PER_ELEMENT);
@@ -490,19 +470,16 @@ function renderPointFlowers() {
 		pointFlower.offset[2] = pointFlower.area.z * zpos;
 		gl.uniform3fv(prog.uniforms.uOffset, pointFlower.offset);
 		gl.drawArrays(gl.POINT, 0, pointFlower.numFlowers);
-
 		pointFlower.offset[0] = pointFlower.area.x * -1.0;
 		pointFlower.offset[1] = pointFlower.area.y * 1.0;
 		pointFlower.offset[2] = pointFlower.area.z * zpos;
 		gl.uniform3fv(prog.uniforms.uOffset, pointFlower.offset);
 		gl.drawArrays(gl.POINT, 0, pointFlower.numFlowers);
-
 		pointFlower.offset[0] = pointFlower.area.x * 1.0;
 		pointFlower.offset[1] = pointFlower.area.y * -1.0;
 		pointFlower.offset[2] = pointFlower.area.z * zpos;
 		gl.uniform3fv(prog.uniforms.uOffset, pointFlower.offset);
 		gl.drawArrays(gl.POINT, 0, pointFlower.numFlowers);
-
 		pointFlower.offset[0] = pointFlower.area.x * 1.0;
 		pointFlower.offset[1] = pointFlower.area.y * 1.0;
 		pointFlower.offset[2] = pointFlower.area.z * zpos;
@@ -516,10 +493,8 @@ function renderPointFlowers() {
 	pointFlower.offset[2] = 0.0;
 	gl.uniform3fv(prog.uniforms.uOffset, pointFlower.offset);
 	gl.drawArrays(gl.POINT, 0, pointFlower.numFlowers);
-
 	gl.bindBuffer(gl.ARRAY_BUFFER, null);
 	unuseShader(prog);
-
 	gl.enable(gl.DEPTH_TEST);
 	gl.disable(gl.BLEND);
 }
@@ -547,18 +522,12 @@ function createEffectProgram(vtxsrc, frgsrc, exunifs, exattrs) {
 	ret.buffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, ret.buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, ret.dataArray, gl.STATIC_DRAW);
-
 	gl.bindBuffer(gl.ARRAY_BUFFER, null);
 	unuseShader(ret.program);
 
 	return ret;
 }
 
-// basic usage
-// useEffect(prog, srctex({'texture':texid, 'dtxArray':(f32)[dtx, dty]})); //basic initialize
-// gl.uniform**(...); //additional uniforms
-// drawEffect()
-// unuseEffect(prog)
 // TEXTURE0 makes src
 function useEffect(fxobj, srctex) {
 	var prog = fxobj.program;
@@ -568,7 +537,6 @@ function useEffect(fxobj, srctex) {
 	if (srctex != null) {
 		gl.uniform2fv(prog.uniforms.uDelta, srctex.dtxArray);
 		gl.uniform1i(prog.uniforms.uSrc, 0);
-
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, srctex.texture);
 	}
@@ -591,19 +559,15 @@ function createEffectLib() {
 	var vtxsrc, frgsrc;
 	//common
 	var cmnvtxsrc = document.getElementById("fx_common_vsh").textContent;
-
 	//background
 	frgsrc = document.getElementById("bg_fsh").textContent;
 	effectLib.sceneBg = createEffectProgram(cmnvtxsrc, frgsrc, ['uTimes'], null);
-
 	// make brightpixels buffer
 	frgsrc = document.getElementById("fx_brightbuf_fsh").textContent;
 	effectLib.mkBrightBuf = createEffectProgram(cmnvtxsrc, frgsrc, null, null);
-
 	// direction blur
 	frgsrc = document.getElementById("fx_dirblur_r4_fsh").textContent;
 	effectLib.dirBlur = createEffectProgram(cmnvtxsrc, frgsrc, ['uBlurDir'], null);
-
 	//final composite
 	vtxsrc = document.getElementById("pp_final_vsh").textContent;
 	frgsrc = document.getElementById("pp_final_fsh").textContent;
@@ -611,22 +575,16 @@ function createEffectLib() {
 }
 
 // background
-function createBackground() {
-	//console.log("create background");
-}
+function createBackground() {}
 
-function initBackground() {
-	//console.log("init background");
-}
+function initBackground() {}
 
 function renderBackground() {
 	gl.disable(gl.DEPTH_TEST);
-
 	useEffect(effectLib.sceneBg, null);
 	gl.uniform2f(effectLib.sceneBg.program.uniforms.uTimes, timeInfo.elapsed, timeInfo.delta);
 	drawEffect(effectLib.sceneBg);
 	unuseEffect(effectLib.sceneBg);
-
 	gl.enable(gl.DEPTH_TEST);
 }
 
@@ -634,15 +592,12 @@ function renderBackground() {
 var postProcess = {};
 
 function createPostProcess() {
-	//console.log("create post process");
 }
 
 function initPostProcess() {
-	//console.log("init post process");
 }
 
 function renderPostProcess() {
-	// gl.enable(gl.TEXTURE_2D);
 	gl.disable(gl.DEPTH_TEST);
 	var bindRT = function(rt, isclear) {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, rt.frameBuffer);
@@ -668,7 +623,6 @@ function renderPostProcess() {
 		gl.uniform4f(effectLib.dirBlur.program.uniforms.uBlurDir, p, 0.0, s, 0.0);
 		drawEffect(effectLib.dirBlur);
 		unuseEffect(effectLib.dirBlur);
-
 		bindRT(renderSpec.wHalfRT0, true);
 		useEffect(effectLib.dirBlur, renderSpec.wHalfRT1);
 		gl.uniform4f(effectLib.dirBlur.program.uniforms.uBlurDir, 0.0, p, 0.0, s);
@@ -680,14 +634,12 @@ function renderPostProcess() {
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	gl.viewport(0, 0, renderSpec.width, renderSpec.height);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
 	useEffect(effectLib.finalComp, renderSpec.mainRT);
 	gl.uniform1i(effectLib.finalComp.program.uniforms.uBloom, 1);
 	gl.activeTexture(gl.TEXTURE1);
 	gl.bindTexture(gl.TEXTURE_2D, renderSpec.wHalfRT0.texture);
 	drawEffect(effectLib.finalComp);
 	unuseEffect(effectLib.finalComp);
-
 	gl.enable(gl.DEPTH_TEST);
 }
 
@@ -707,7 +659,6 @@ function initScene() {
 	initPointFlowers();
 	initPostProcess();
 
-	//camera.position.z = 17.320508;
 	camera.position.z = pointFlower.area.z + projection.nearfar[0];
 	projection.angle = Math.atan2(pointFlower.area.y, camera.position.z + pointFlower.area.z) * 180.0 / Math.PI * 2.0;
 	Matrix44.loadProjection(projection.matrix, renderSpec.aspect, projection.angle, projection.nearfar[0], projection.nearfar[
@@ -719,8 +670,6 @@ function renderScene() {
 	Matrix44.loadLookAt(camera.matrix, camera.position, camera.lookat, camera.up);
 
 	gl.enable(gl.DEPTH_TEST);
-
-	//gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	gl.bindFramebuffer(gl.FRAMEBUFFER, renderSpec.mainRT.frameBuffer);
 	gl.viewport(0, 0, renderSpec.mainRT.width, renderSpec.mainRT.height);
 	gl.clearColor(0.005, 0, 0.05, 0);
